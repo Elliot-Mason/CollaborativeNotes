@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="styles.css">
+    <title>Real-Time Collaborative Code Editor</title>
+    <script src="index.js" defer> </script>
+</head>
+
+<body>
+    <header>
+        <div class="alignboys">
+            <div class='toggle-switch'>
+                <label>
+                    <input type='checkbox' id="myMoon">
+                    <span class='slider'> </span>
+                </label>
+                <img src="images/moon1.png" id="moon1">
+            </div>
+        </div>
+    </header>
+    <div class="main">
+        <textarea id="codeEditor" placeholder="Start coding here..."></textarea>
+        <script>
+            const ws = new WebSocket('ws://localhost:8080');
+
+            const editor = document.getElementById('codeEditor');
+
+            // Send changes to the server
+            editor.addEventListener('input', (event) => {
+                const content = editor.value;
+                ws.send(content);
+            });
+
+            // Receive updates from the server
+            ws.onmessage = (message) => {
+                // editor.value = message.data;
+                if (message.data instanceof Blob) {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        editor.value = reader.result;
+                    };
+                    reader.readAsText(message.data); // Convert Blob to text
+                } else {
+                    // If it's not a Blob, we assume it's a plain string
+                    editor.value = message.data;
+                }
+
+            };
+
+            ws.onopen = (cock) => {
+                console.log("Connected to WebSocket server");     
+            };
+
+            ws.onclose = () => {
+                console.log("Disconnected from WebSocket server");
+            };
+        </script>
+    </div>
+</body>
+
+</html>
