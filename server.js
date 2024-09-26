@@ -17,7 +17,7 @@ wss.on('connection', function connection(ws) {
 
     // Broadcast changes to all connected clients
     ws.on('message', function incoming(message) {
-    const data = JSON.parse(message);
+    const data = message;
     
     // Check if the client is requesting the current buffer
     if (data.type === 'requestBuffer') {
